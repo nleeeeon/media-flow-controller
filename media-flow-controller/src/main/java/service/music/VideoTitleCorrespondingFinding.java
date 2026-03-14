@@ -12,8 +12,8 @@ import dao.music.Music_details_dao;
 import dao.music.Music_piano_video_dao;
 import dao.youtube.Videos_dao;
 import domain.music.MusicMatchJudge;
-import dto.music.DeterminationMusic;
 import dto.music.MusicDetail;
+import dto.music.MusicIdentityService;
 import dto.music.VideoRecord;
 import dto.music.artistIdentitys;
 import infrastructure.db.DbVendorChecker;
@@ -63,7 +63,7 @@ public class VideoTitleCorrespondingFinding {
 		   }
 	  }
 
-	  public void put(DeterminationMusic entry,
+	  public void put(MusicIdentityService entry,
 			  String searchKeywordArtist, String searchKeywordSong, 
 			  boolean anotherMusicFlag, long id) throws SQLException{
 		  
@@ -122,7 +122,7 @@ public class VideoTitleCorrespondingFinding {
 		}
 
 		private LoopAction handleNewSongCandidate(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand) {
 
 			String sameArtistKey = null;
@@ -138,10 +138,7 @@ public class VideoTitleCorrespondingFinding {
 		    }
 
 		    if (isPerfectArtistMatch(songMatch)) {
-		        /*determinationMusicSwap(entry);
-		        if (i == 1) {
-		            cand = songCandidates(entry.song, 5, entry.artist);
-		        }*/
+		        
 		        return LoopAction.continueLoop(cand, sameArtistKey);
 		    }
 
@@ -159,15 +156,12 @@ public class VideoTitleCorrespondingFinding {
 		        return LoopAction.breakLoop(cand, sameArtistKey);
 		    }
 
-		    /*determinationMusicSwap(entry);
-		    if (i == 1) {
-		        cand = songCandidates(entry.song, 5, entry.artist);
-		    }*/
+		    
 		    return LoopAction.continueLoop(cand, sameArtistKey);
 		}
 
 		private String handleFixedCorrection(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand,
 		        MusicDetail candM) {
 
@@ -179,7 +173,7 @@ public class VideoTitleCorrespondingFinding {
 		    // swapFlag == false:
 		    //   信頼度falseだったが、正しい並びでアーティスト・曲名が一致した
 
-		    determinationMusicSwap(entry);
+		    musicIdentityServiceSwap(entry);
 		    cand.newsong = true;
 		    cand.existingMusicFlag = false;
 
@@ -207,11 +201,11 @@ public class VideoTitleCorrespondingFinding {
 		}
 		//artistでは一致してないけど、artistでヒットするのを探して、そのペア同士が一致するならそっちを返すメソッド
 		private PrefixMatcher.Result handleExistingMismatch(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand,
 		        MusicDetail candM) {
 
-		    determinationMusicSwap(entry);
+		    musicIdentityServiceSwap(entry);
 		    PrefixMatcher.Result keep = songIndex.songCandidates(entry.song, 5, entry.artist);
 
 		    if (keep.existingMusicFlag
@@ -219,12 +213,12 @@ public class VideoTitleCorrespondingFinding {
 		        return keep;
 		    }
 
-		    determinationMusicSwap(entry);
+		    musicIdentityServiceSwap(entry);
 		    return cand;
 		}
 
 		private String handleNormalArtistMatch(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand,
 		        MusicDetail candM) {
 
@@ -271,7 +265,7 @@ public class VideoTitleCorrespondingFinding {
 		            && (result.insertOnly || result.deleteOnly);
 		}
 	  
-		private void registerNewMusic(DeterminationMusic entry, boolean fixed) throws SQLException {
+		private void registerNewMusic(MusicIdentityService entry, boolean fixed) throws SQLException {
 
 		    long id = idGen.newId();
 
@@ -317,7 +311,7 @@ public class VideoTitleCorrespondingFinding {
 		    }
 		}
 		
-		private boolean isArtistMissing(DeterminationMusic entry, MusicDetail candM) {
+		private boolean isArtistMissing(MusicIdentityService entry, MusicDetail candM) {
 
 		    return !(entry.artist != null
 		            && !entry.artist.isEmpty()
@@ -326,7 +320,7 @@ public class VideoTitleCorrespondingFinding {
 		}
 
 		private void applyCandidateResult(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand,
 		        MusicDetail candM,
 		        boolean anotherMusicFlag) throws SQLException {
@@ -349,7 +343,7 @@ public class VideoTitleCorrespondingFinding {
 		}
 		
 		private MatchPhaseResult handleFixedRelatedCase(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand,
 		        MusicDetail candM,
 		        MusicDetail candMfixedSwap,
@@ -371,7 +365,7 @@ public class VideoTitleCorrespondingFinding {
 		}
 		
 		private MatchPhaseResult handleFixedArtistMismatch(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand,
 		        MusicDetail candM,
 		        MusicDetail candMfixedSwap,
@@ -469,7 +463,7 @@ public class VideoTitleCorrespondingFinding {
 		}
 		
 		private MatchPhaseResult handleFixedArtistMissing(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        MusicDetail candM,
 		        String entArtistKey,
 		        boolean swapFlag) {
@@ -521,7 +515,7 @@ public class VideoTitleCorrespondingFinding {
 		}
 		
 		private MatchPhaseResult handleNonFixedCase(
-		        DeterminationMusic entry,
+		        MusicIdentityService entry,
 		        PrefixMatcher.Result cand,
 		        MusicDetail candM,
 		        MusicDetail candMfixedSwap,
@@ -547,7 +541,7 @@ public class VideoTitleCorrespondingFinding {
 		    	//entry側のほうがartist,songの順が違うと判断して、artistの新しいsongとして登録する
 		        String newArtistKey = candM.artistKey();
 
-		        determinationMusicSwap(entry);
+		        musicIdentityServiceSwap(entry);
 		        entry.artistKey = newArtistKey;
 		        entry.songKey = MusicKeyUtils.strongKey(entry.song);
 
@@ -559,7 +553,7 @@ public class VideoTitleCorrespondingFinding {
 		        String newArtistKey = candM.songKey();
 
 		        manager.swapName(candM.id());
-		        determinationMusicSwap(entry);
+		        musicIdentityServiceSwap(entry);
 		        entry.artistKey = newArtistKey;
 		        entry.songKey = MusicKeyUtils.strongKey(entry.song);
 
@@ -579,7 +573,7 @@ public class VideoTitleCorrespondingFinding {
 		
 		private record CandidateLoopResult(PrefixMatcher.Result cand, String sameArtistKey) {};
 		
-		private LoopAction handleNewSongOriginal(DeterminationMusic entry) {
+		private LoopAction handleNewSongOriginal(MusicIdentityService entry) {
 			PrefixMatcher.Result cand = songIndex.songCandidates(entry.song, 5, entry.artist);
 			MusicDetail candM = manager.musicDetailGet(cand.recordKey);
 			if(cand.newsong && hasText(entry.artist)) {
@@ -600,7 +594,7 @@ public class VideoTitleCorrespondingFinding {
 			}
 		}
 		
-		private LoopAction handleNewSongSwappedOrder(DeterminationMusic entry) {
+		private LoopAction handleNewSongSwappedOrder(MusicIdentityService entry) {
 			PrefixMatcher.Result cand = songIndex.songCandidates(entry.song, 5, entry.artist);
 			MusicDetail candM = manager.musicDetailGet(cand.recordKey);
 			
@@ -618,25 +612,25 @@ public class VideoTitleCorrespondingFinding {
 			}
 		}
 		
-		private CandidateLoopResult resolveCandidate(DeterminationMusic entry) {
+		private CandidateLoopResult resolveCandidate(MusicIdentityService entry) {
 			LoopAction action = handleNewSongOriginal(entry);
 			if(action.shouldBreak) {
 				return new CandidateLoopResult(action.cand, action.sameArtistKey);
 			}
 			//アーティスト名として取得したものデータも検索して、
 			//結果を確認するためにもう一度検索する
-			determinationMusicSwap(entry);
+			musicIdentityServiceSwap(entry);
 		    
 			action = handleNewSongSwappedOrder(entry);
 			if(action.shouldContinue) {
 				//入れ替えても特に結果が変わらなかったのでもとに戻す
-				determinationMusicSwap(entry);
+				musicIdentityServiceSwap(entry);
 			}
 			
 			return new CandidateLoopResult(action.cand, action.sameArtistKey);
 		}
 		
-		private void handleNewMusic(PrefixMatcher.Result cand, DeterminationMusic entry, String sameArtistKey) throws SQLException {
+		private void handleNewMusic(PrefixMatcher.Result cand, MusicIdentityService entry, String sameArtistKey) throws SQLException {
 			boolean createFixed = cand.newsong && sameArtistKey != null;
 
 		    if (createFixed && !entry.fixed && MusicMatchJudge.sameCheck(sameArtistKey, entry.song)) {
@@ -657,7 +651,7 @@ public class VideoTitleCorrespondingFinding {
 		}
 		
 		/* 多分同じ曲だと判定された際のフェーズ */
-		private void handleExistingMusic(PrefixMatcher.Result cand, DeterminationMusic entry) throws SQLException {
+		private void handleExistingMusic(PrefixMatcher.Result cand, MusicIdentityService entry) throws SQLException {
 			MusicDetail candM = manager.musicDetailGet(cand.recordKey);
 		    String entArtistKey = MusicKeyUtils.strongKey(entry.artist);
 
@@ -705,7 +699,7 @@ public class VideoTitleCorrespondingFinding {
 	  // ========= 8) 重複吸収（近いなら同じ曲として保存） =========
 	  /** 新規（artist, song）が既存のどの曲キーに近いかを見て、近ければそこにぶら下げ、遠ければ新規キー作成 
 	 * @throws SQLException */
-	  public void upsertFuzzy(DeterminationMusic entry,boolean pianoFlag) throws SQLException{
+	  public void upsertFuzzy(MusicIdentityService entry,boolean pianoFlag) throws SQLException{
 	    
 	    
 		CandidateLoopResult loopResult = resolveCandidate(entry);
@@ -729,7 +723,7 @@ public class VideoTitleCorrespondingFinding {
 		  return m.swapName();
 	  }
 	  
-	  private void determinationMusicSwap(DeterminationMusic entry) {
+	  private void musicIdentityServiceSwap(MusicIdentityService entry) {
 		  String str = entry.artist;
 		  entry.artist =entry.song;
 		  entry.song = str;
@@ -759,8 +753,8 @@ public class VideoTitleCorrespondingFinding {
 		
 		
 	  }
-	  public void start(VideoTitleCorrespondingFinding fx, List<DeterminationMusic> a) throws Exception {
-		  for(DeterminationMusic m : a) {
+	  public void start(VideoTitleCorrespondingFinding fx, List<MusicIdentityService> a) throws Exception {
+		  for(MusicIdentityService m : a) {
 			  //信頼度が低くて、両方同じはバグりやすいと思うのでいったんスキップ
 			  if(!m.fixed && m.artist != null && m.artist.equals(m.song)) {
 				  continue;

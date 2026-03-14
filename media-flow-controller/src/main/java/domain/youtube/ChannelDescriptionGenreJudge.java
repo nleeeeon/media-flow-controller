@@ -2,7 +2,8 @@ package domain.youtube;
 
 import java.util.Locale;
 
-import service.music.TitleWorkExtractor;
+import service.title.TitleWorkExtractor;
+
 
 public final class ChannelDescriptionGenreJudge {
 

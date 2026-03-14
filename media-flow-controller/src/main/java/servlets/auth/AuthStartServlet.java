@@ -24,7 +24,7 @@ public class AuthStartServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-	  if(!System.getenv().getOrDefault("DB_URL","").equals(""))return;
+	  //if(!System.getenv().getOrDefault("DB_URL","").equals(""))return;
       String clientId = System.getenv("GOOGLE_CLIENT_ID");
       if (clientId == null || clientId.isBlank()) {
           resp.sendError(500, "Missing env GOOGLE_CLIENT_ID. Set it in Run Configurations > Environment.");

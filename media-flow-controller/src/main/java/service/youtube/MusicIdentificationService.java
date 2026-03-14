@@ -15,7 +15,7 @@ import dao.youtube.Videos_dao;
 import domain.music.MusicMatchJudge;
 import domain.youtube.VideoGenre;
 import dto.anime.Anime;
-import dto.music.DeterminationMusic;
+import dto.music.MusicIdentityService;
 import dto.music.Track;
 import dto.music.VideoUpsertParam;
 import dto.youtube.ThumbnailAndTitle;
@@ -27,10 +27,9 @@ import infrastructure.db.DbVendorChecker.DbVendor;
 import infrastructure.youtube.YouTubeApiClient;
 import listener.AppStartupListener;
 import service.identity.PairJudgeRegistry;
-import service.music.TitleWorkExtractor;
 import service.music.VideoTitleCorrespondingFinding;
+import service.title.TitleTrackExtractor;
 import util.common.MusicKeyUtils;
-import util.string.Strings;
 public class MusicIdentificationService {
 
 	
@@ -54,7 +53,7 @@ public class MusicIdentificationService {
 		
 		Videos_dao mDao = new Videos_dao();
 		List<VideoUpsertParam> batchMusic = new ArrayList<>();
-		List<DeterminationMusic> list = new ArrayList<>();
+		List<MusicIdentityService> list = new ArrayList<>();
 		Map<String, Long> videoPlayTimes = new HashMap<>();;
 		for(VideoInfo entry : videos) {
 			batchMusic.add(new VideoUpsertParam(entry.videoId, entry.channelId, VideoGenre.PIANO, true, entry.title, entry.playCount, entry.thumbnailUrl));
@@ -63,17 +62,13 @@ public class MusicIdentificationService {
 			count.merge(entry.channelId, 1, Integer::sum);
 			videoPlayTimes.put(entry.videoId, entry.playCount);
 			Track out = new Track();
-			entry.title = TitleWorkExtractor.cutByBracketsRule(entry.title);
-			entry.title = TitleWorkExtractor.cutByCoverLikeRule(entry.title);
-			entry.title = Strings.norm(entry.title);
-			TitleWorkExtractor.vocaloid_song_check(out, entry.title, "");
-			if(out.isNull())TitleWorkExtractor.artistSongTitleExtraction(out, entry.title);
+			TitleTrackExtractor.titleJustForWithSongTitleAndArtistExtract(out, entry.title);
 			if(out.isNull())continue;
 			String song = out.song;
 			String artist = out.hasArtist() ? out.artist : "";
 			boolean fixed = out.hasArtist() ? false : true;
 			
-			DeterminationMusic m = new DeterminationMusic(artist, song, fixed, entry.videoId, entry.channelId, new Anime(), null, null, true, baseTitle);
+			MusicIdentityService m = new MusicIdentityService(artist, song, fixed, entry.videoId, entry.channelId, new Anime(), null, null, true, baseTitle);
 			//デバッグ用↓
 			if(m.artist.equals(m.song)) {
 	    		System.out.println(m.artist+" スキップしました");
@@ -133,7 +128,7 @@ public class MusicIdentificationService {
 			batchMusic.add(new VideoUpsertParam(entry.videoId, entry.channelId, VideoGenre.PIANO, true, entry.title, entry.playCount, entry.thumbnailUrl));
 			
 			Track out = new Track();
-			TitleWorkExtractor.titleJustForWithSongTitleAndArtistExtract(out, entry.title);
+			TitleTrackExtractor.titleJustForWithSongTitleAndArtistExtract(out, entry.title);
 			
 			if(out.isNull())continue;
 			

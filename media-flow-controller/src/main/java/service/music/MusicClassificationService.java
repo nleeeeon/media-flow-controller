@@ -14,7 +14,7 @@ import dao.youtube.Videos_dao;
 import domain.youtube.ChannelDescriptionGenreJudge;
 import domain.youtube.VideoGenre;
 import dto.anime.AnimeWithVideoId;
-import dto.music.DeterminationMusic;
+import dto.music.MusicIdentityService;
 import dto.music.MusicSource;
 import dto.music.Track;
 import dto.music.VideoRecord;
@@ -22,7 +22,8 @@ import dto.youtube.VideoInput;
 import infrastructure.youtube.YouTubeApiClient;
 import listener.AppStartupListener;
 import service.anime.AnimationOpedSongTitleApiSearch;
-import service.music.TitleWorkExtractor.TitleExtractResult;
+import service.title.TitleWorkExtractor;
+import service.title.TitleWorkExtractor.TitleExtractResult;
 import service.youtube.ChannelGenreJudgeService;
 
 public class MusicClassificationService{
@@ -88,12 +89,31 @@ public class MusicClassificationService{
 			  
 		  }
 	// ====== 設定 ======
+	public static void printByVideoIdOrder(List<TitleExtractResult> list) {
 
+	    list.stream()
+	        .sorted(java.util.Comparator.comparing(TitleExtractResult::channelIds,
+	                java.util.Comparator.nullsLast(String::compareTo)))
+	        .forEach(r -> {
+
+	            Track t = r.works();
+
+	            System.out.println("videoId : " + r.channelIds());
+	            System.out.println("artist  : " + (t != null ? t.artist : null));
+	            System.out.println("song    : " + (t != null ? t.song : null));
+	            System.out.println("genre   : " + r.category());
+	            System.out.println("confident : " + r.is_confident());
+	            System.out.println("foundKeyParenthesis : " + r.foundKeyParenthesis());
+	            System.out.println("---------------------------");
+
+	        });
+	}
 public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject> meta, String token, Map<String, Boolean> existingVideoIds) throws Exception {
 	songForArtist = new HashMap<>();
 	onlyAnimes = new HashSet<>();
   
   //時間を計測。デバッグ用
+	List<TitleExtractResult> debug = new ArrayList<>();
 	long start = System.nanoTime();
 	// 1) 一次抽出 & キャッシュヒットを先に反映
 	List<Result> allMusic = new ArrayList<>();
@@ -134,7 +154,7 @@ public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject>
       JsonObject item = meta.get(r.videoId);
       TitleWorkExtractor extractor = new TitleWorkExtractor(channelRegistrantNumber, channel_title_ja_by_id, onlyAnimes, songForArtist);
       TitleExtractResult pre    = extractor.extractWorksFromTitle(item, r.title, r.subtitle, r.videoId);
-      
+      debug.add(pre);
       if(pre.category() == VideoGenre.PIANO) {
     	  pianos.add(r.videoId);
       }
@@ -156,6 +176,7 @@ public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject>
 		   
 	   }
     }
+	printByVideoIdOrder(debug);
     ChannelGenreJudgeService service = new ChannelGenreJudgeService(new YouTubeApiClient());
     Map<String, ChannelDescriptionGenreJudge.Result> judgeList = service.judge(singleChannelIds, token);
     
@@ -186,10 +207,10 @@ public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject>
     VideoTitleCorrespondingFinding fx = new VideoTitleCorrespondingFinding(AppStartupListener.musicIndexManager, AppStartupListener.idGenerator, videoPlayTimes);
     //fx.init();
     //printMapContents();
-    List<DeterminationMusic> list = new ArrayList<>();
+    List<MusicIdentityService> list = new ArrayList<>();
     for(Map.Entry<String, List<MusicSource>> ent : songForArtist.entrySet()) {
     	for(MusicSource m : ent.getValue()) {
-    		DeterminationMusic d = new DeterminationMusic(m);
+    		MusicIdentityService d = new MusicIdentityService(m);
     		list.add(d);
     		
     	}
@@ -207,12 +228,12 @@ public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject>
     	
     });
     
-    List<DeterminationMusic> animeList = new ArrayList<>();
+    List<MusicIdentityService> animeList = new ArrayList<>();
     for(AnimeWithVideoId a : onlyAnimes) {
-    	animeList.add(new DeterminationMusic(null, null, true, a.videoId(), a.channelId(), a.anime(), null, null, false, null));
+    	animeList.add(new MusicIdentityService(null, null, true, a.videoId(), a.channelId(), a.anime(), null, null, false, null));
     }
     List<String> list2 = new ArrayList<>();
-	for(DeterminationMusic m : animeList) {
+	for(MusicIdentityService m : animeList) {
 		if(m.anime.title != null) {
 			list2.add(m.anime.title);
 			}

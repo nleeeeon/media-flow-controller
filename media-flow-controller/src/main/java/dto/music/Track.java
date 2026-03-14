@@ -29,9 +29,6 @@ class Track{
 		artist = null;
 		song = null;
 	}
-	public Track copy() {
-		return new Track(artist, song);
-	}
 	public Track(String artist, String song) {
 		this.artist = artist;
 		this.song = song;

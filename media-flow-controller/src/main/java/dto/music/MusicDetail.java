@@ -14,7 +14,7 @@ public record MusicDetail(
 		  String artist,
 		  String song
 ) {
-	public MusicDetail(DeterminationMusic m, long id, long playCount) {
+	public MusicDetail(MusicIdentityService m, long id, long playCount) {
 		
 		this(id, List.of(m.artistKey), List.of(m.songKey), 0, 0, m.fixed, playCount, m.artist, m.song);
 	}

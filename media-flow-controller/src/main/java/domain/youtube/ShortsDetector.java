@@ -5,7 +5,7 @@ import java.util.Locale;
 
 import dto.youtube.ShortVideoCheckTarget;
 import dto.youtube.VideoInfo;
-import service.music.TitleWorkExtractor;
+import service.title.TitleWorkExtractor;
 
 public final class ShortsDetector {
 	private static final int SHORTS_MIN_SEC  = 0;

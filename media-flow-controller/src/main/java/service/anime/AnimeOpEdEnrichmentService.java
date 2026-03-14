@@ -8,7 +8,7 @@ import dao.youtube.Anime_records_dao;
 import dto.anime.Anime;
 import dto.anime.AnimeOpEd;
 import dto.anime.Theme;
-import dto.music.DeterminationMusic;
+import dto.music.MusicIdentityService;
 import infrastructure.anime.AnimeThemesApiClient;
 import listener.AppStartupListener;
 import service.music.VideoTitleCorrespondingFinding;
@@ -22,11 +22,11 @@ public final class AnimeOpEdEnrichmentService {
     }
 
     /** DeterminationMusic一覧をAnimeThemes APIで補完し、必要なら upsert/prefixCheck まで実行 */
-    public void enrich(List<String> queries, List<DeterminationMusic> musics) throws Exception {
+    public void enrich(List<String> queries, List<MusicIdentityService> musics) throws Exception {
         Map<String, Anime> batch = new HashMap<>();
     	for (int i = 0; i < queries.size(); i++) {
             String q = queries.get(i);
-            DeterminationMusic m = musics.get(i);
+            MusicIdentityService m = musics.get(i);
 
             AnimeOpEd a = client.fetchOneAnime(q).orElse(null);
             if (a == null) continue;
@@ -62,7 +62,7 @@ public final class AnimeOpEdEnrichmentService {
     	dao.upsertAnimeBatch(batch);
     }
 
-    private static Theme pickTheme(List<Theme> themes, DeterminationMusic m) {
+    private static Theme pickTheme(List<Theme> themes, MusicIdentityService m) {
         if (themes == null || themes.isEmpty()) return null;
 
         // 元コードは if/else で結局 break していたため、実質「最初の1件」になっていました。

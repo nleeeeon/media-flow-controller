@@ -3,7 +3,7 @@ package service.anime;
 import java.util.ArrayList;
 import java.util.List;
 
-import dto.music.DeterminationMusic;
+import dto.music.MusicIdentityService;
 import infrastructure.anime.AnimeThemesApiClient;
 import infrastructure.concurrent.AnimeApiQueueExecutor;
 import infrastructure.http.SimpleRateLimiter;
@@ -19,9 +19,9 @@ public final class AnimationOpedSongTitleApiSearch {
     private static final long SAFE_INTERVAL_MS = 1000L;
     private static final int MAX_RETRIES = 6;
 
-    public static void start(List<DeterminationMusic> ms) {
+    public static void start(List<MusicIdentityService> ms) {
         List<String> queries = new ArrayList<>();
-        for (DeterminationMusic m : ms) {
+        for (MusicIdentityService m : ms) {
             queries.add(m.anime.title);
         }
 
