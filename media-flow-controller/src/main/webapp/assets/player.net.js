@@ -1,7 +1,7 @@
 async function servletResult(url){
   let text = "";
   try {
-    const resp = await fetch(url, { method: "GET", cache: "no-store"/*aiBuildだとここにcookieを送るコードを書いてるけど、cookieの設定をするコード書いてないし多分必要ない*/ });
+    const resp = await fetch(url, { method: "GET", cache: "no-store" });
     text = await resp.text();
   } catch (err) {
     setMsg("エラー: ネットワーク失敗: " + (err?.message || err));
@@ -22,7 +22,7 @@ async function servletResult(url){
     return;
   }
   if(data && data.ok === false){
-	  showToast(data.msg);//本当はちゃんとしたエラーメッセージを作らないといけない
+	  showToast(data.message);//本当はちゃんとしたエラーメッセージを作らないといけない
 	  return data;
   }
   return data;

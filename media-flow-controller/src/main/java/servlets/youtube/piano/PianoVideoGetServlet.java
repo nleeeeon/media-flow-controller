@@ -53,7 +53,7 @@ public class PianoVideoGetServlet extends HttpServlet {
 			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
-		if(m == null) {
+		if(m == null || m.musicId() == null) {
 		    Responses.writeErr(resp,
                     HttpServletResponse.SC_BAD_REQUEST,
                     "BAD_REQUEST",
@@ -94,7 +94,7 @@ public class PianoVideoGetServlet extends HttpServlet {
 		    Responses.writeErr(resp,
                     HttpServletResponse.SC_BAD_REQUEST,
                     "BAD_REQUEST",
-                    "Googleで認可してください（yt_access_token がありません）");
+                    "デモでは検索はできません");
 	      return;
 	    }
 	    String pianoVideoId = null;

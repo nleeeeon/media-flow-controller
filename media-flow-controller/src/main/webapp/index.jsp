@@ -146,13 +146,7 @@
             </div>
 
             <div class="col-side">
-                <!-- <div class="card">
-                    <h4>Status Monitor</h4>
-                    <div style="font-size:13px; display:grid; gap:8px;">
-                        <div>Video ID: <code id="curVidLbl" style="background:#f3f4f6; padding:2px 4px; border-radius:4px;">-</code></div>
-                        <div>Source: <span id="segSourceLbl">-</span></div>
-                    </div>
-                </div>とりあえずここは何もいいものが思いつかないのでいったんコメントアウト -->
+                
                 
                 <div class="card">
                     <h4>データ取り込み</h4>

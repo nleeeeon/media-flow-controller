@@ -16,7 +16,7 @@ import domain.youtube.MusicKeyType;
 import dto.music.MusicDetail;
 import dto.response.UpdateKey;
 import infrastructure.index.ArtistSearchIndex.Candidate;
-import infrastructure.memorydb.DBJavaVersion;
+import infrastructure.memorydb.IndexedMemoryStore;
 import util.common.MusicKeyUtils;
 import util.string.RomajiConverter;
 import util.string.Strings;
@@ -28,7 +28,7 @@ public class MusicIndexManager {
 	private ArtistSearchIndex artistSearch;
 	private Set<String> ngramIndexedArtists = new HashSet<>();
 	private Set<Long> tableDeleteIds = new HashSet<>();
-	public DBJavaVersion<Long, MusicDetail> table = new DBJavaVersion<>(row -> row.id());
+	public IndexedMemoryStore<Long, MusicDetail> table = new IndexedMemoryStore<>(row -> row.id());
 	
 	public Set<Long> getTableDeleteIds(){
 		return tableDeleteIds;

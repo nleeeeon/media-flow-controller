@@ -57,6 +57,7 @@ public class TitleQuoteUtil {
         return out;
     }
 
+    //このメソッドは"/"や"|"などで区切られた文字列から左をアーティスト、右を曲名として抽出する
     static String[] splitFirstTwoByDelims(String s, Pattern delims) {
         if (s == null) return new String[0];
         Matcher m = delims.matcher(s);
@@ -74,6 +75,7 @@ public class TitleQuoteUtil {
         while (afterFirst < n && Character.isWhitespace(s.charAt(afterFirst))) afterFirst++;
 
         if (m.find()) {
+        	//もし文字列が「artist/song/other」みたいな感じだったら、otherの部分を含めないように抽出するため
             int secondStart = m.start();
             String b = s.substring(afterFirst, Math.max(afterFirst, secondStart)).trim();
             if (b.equals("")) return new String[]{a};

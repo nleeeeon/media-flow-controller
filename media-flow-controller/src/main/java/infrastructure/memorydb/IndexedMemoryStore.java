@@ -11,13 +11,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
-	public class DBJavaVersion<ID, T> {
+	public class IndexedMemoryStore<ID, T> {
 	  private final Function<T, ID> idFn;
 	  private final Map<ID, T> byId = new ConcurrentHashMap<>();
 	  private final Map<String, Index<?, T>> indexes = new ConcurrentHashMap<>();
 	  private final ReadWriteLock rw = new ReentrantReadWriteLock();
 
-	  public DBJavaVersion(Function<T, ID> idFn) { this.idFn = idFn; }
+	  public IndexedMemoryStore(Function<T, ID> idFn) { this.idFn = idFn; }
 
 	  // ---- インデックス登録 ----
 	  public <K> void addUniqueIndex(String name, Function<T, K> keyFn) {

@@ -88,32 +88,12 @@ public class MusicClassificationService{
 			  }
 			  
 		  }
-	// ====== 設定 ======
-	public static void printByVideoIdOrder(List<TitleExtractResult> list) {
-
-	    list.stream()
-	        .sorted(java.util.Comparator.comparing(TitleExtractResult::channelIds,
-	                java.util.Comparator.nullsLast(String::compareTo)))
-	        .forEach(r -> {
-
-	            Track t = r.works();
-
-	            System.out.println("videoId : " + r.channelIds());
-	            System.out.println("artist  : " + (t != null ? t.artist : null));
-	            System.out.println("song    : " + (t != null ? t.song : null));
-	            System.out.println("genre   : " + r.category());
-	            System.out.println("confident : " + r.is_confident());
-	            System.out.println("foundKeyParenthesis : " + r.foundKeyParenthesis());
-	            System.out.println("---------------------------");
-
-	        });
-	}
+	
 public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject> meta, String token, Map<String, Boolean> existingVideoIds) throws Exception {
 	songForArtist = new HashMap<>();
 	onlyAnimes = new HashSet<>();
   
   //時間を計測。デバッグ用
-	List<TitleExtractResult> debug = new ArrayList<>();
 	long start = System.nanoTime();
 	// 1) 一次抽出 & キャッシュヒットを先に反映
 	List<Result> allMusic = new ArrayList<>();
@@ -154,7 +134,6 @@ public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject>
       JsonObject item = meta.get(r.videoId);
       TitleWorkExtractor extractor = new TitleWorkExtractor(channelRegistrantNumber, channel_title_ja_by_id, onlyAnimes, songForArtist);
       TitleExtractResult pre    = extractor.extractWorksFromTitle(item, r.title, r.subtitle, r.videoId);
-      debug.add(pre);
       if(pre.category() == VideoGenre.PIANO) {
     	  pianos.add(r.videoId);
       }
@@ -176,7 +155,6 @@ public List<Result> classify(List<VideoInput> musicOnly, Map<String, JsonObject>
 		   
 	   }
     }
-	printByVideoIdOrder(debug);
     ChannelGenreJudgeService service = new ChannelGenreJudgeService(new YouTubeApiClient());
     Map<String, ChannelDescriptionGenreJudge.Result> judgeList = service.judge(singleChannelIds, token);
     

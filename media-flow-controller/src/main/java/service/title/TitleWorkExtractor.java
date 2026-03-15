@@ -132,6 +132,8 @@ public class TitleWorkExtractor {
                 && (TitleClassifier.strMadCheck(context.description())
                         || TitleClassifier.joinedStrMadCheck(context.joined()))) {
             state.madFlag = true;
+            //mad動画は数文字しかないタイトルってのが多かったような気がするので文字数次第でtrueにする
+            //あとで良くなかったら修正します
             state.madIsConfident = context.title().length() <= 10;
         }
         return state;
