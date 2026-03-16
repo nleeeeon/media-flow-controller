@@ -247,7 +247,7 @@ public class ArtistSearchIndex {
             return null;
         }
         var top = list.get(0);
-        return (top.score >= threshold) ? top : top;
+        return top;
     }
 
     /** Top-N 候補をスコア降順で返す。 */
